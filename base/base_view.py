@@ -65,6 +65,11 @@ class BaseView(View, metaclass=abc.ABCMeta):
         self.__redirect_url = None
 
     def __run(self, request):
+        print(request.META)
+        self.token = request.META.get("HTTP_X_TOKEN")
+        if not self.token or self.token != 'admin-token':
+            self.set_error(201, 'access defined is fail')
+            return self.finish(request)
         try:
             resp_data = self.do_logic(request)
         except:
