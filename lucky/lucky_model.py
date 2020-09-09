@@ -31,9 +31,4 @@ class LuckyModel:
         for i in range(count):
             lucky_number = self.random_lucky_number(33, 6) + self.random_lucky_number(16, 1)
             result.append(lucky_number)
-        print(result)
         return result
-
-
-lucky = LuckyModel()
-lucky.get_several_lucky_number(1)
