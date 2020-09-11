@@ -143,3 +143,16 @@ CORS_ALLOW_HEADERS = (
     'X-TOKEN',
     'Request-Platform',
 )
+
+CACHES = {
+    'default': {
+        'HOST': '127.0.0.1',
+        'PORT': 6379,
+        'PASSWORD': 'qwe123'
+    },
+}
+
+CACHES_DEFAULT_PROPERTIES = {
+    "SOCKET_CONNECT_TIMEOUT": 10,
+    "SOCKET_TIMEOUT": 10,
+}
