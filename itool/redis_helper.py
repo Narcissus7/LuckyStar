@@ -21,6 +21,15 @@ class RdConn:
     def set(self, name, value):
         return self.conn.set(name, value)
 
+    def lpush(self, key, value):
+        return self.conn.lpush(key, value)
+
+    def rpop(self, key):
+        return self.conn.rpop(key)
+
+    def expire(self, key, time):
+        return self.conn.expire(key, time)
+
 
 def get_redis_helper():
     dbconf = settings.CACHES['default']
