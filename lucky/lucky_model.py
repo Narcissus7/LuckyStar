@@ -48,10 +48,12 @@ class LuckyModel:
     def fetch_history_number(self, num=1) -> List:
         cache = redis_helper.get_redis_helper()
 
-        cache_data = cache.get(cache.rpop(HISTORY_NUMBER_KEY))
-        if cache_data:
-            result = self.resolve_fetch_data(cache_data)
-            return result
+        cache_key = cache.rpop(HISTORY_NUMBER_KEY)
+        if cache_key:
+            cache_data = cache.get(cache.rpop(HISTORY_NUMBER_KEY))
+            if cache_data:
+                result = self.resolve_fetch_data(cache_data)
+                return result
 
         url = 'http://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?name=ssq&issueCount=%s' % num
 
