@@ -48,7 +48,7 @@ class LuckyModel:
     def fetch_history_number(self, num=1) -> List:
         cache = redis_helper.get_redis_helper()
 
-        cache_data = cache.get(cache.get(HISTORY_NUMBER_KEY))
+        cache_data = cache.get(HISTORY_NUMBER_KEY)
         if cache_data:
             result = self.resolve_fetch_data(cache_data)
             return result
