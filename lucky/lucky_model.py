@@ -1,15 +1,17 @@
 import random
 import requests
 import json
-import redis
+import datetime
+import re
 from typing import List
 from itool import redis_helper
+from bs4 import BeautifulSoup
 HISTORY_NUMBER_KEY = 'history_number_data'
 HEADERS = {
     'Accept': 'application/json;text/javascript;*/*;q=0.01',
     # 'Accept': 'application/json;charset=utf-8;',
     'Content-Type': 'application/json;charset=UTF-8',
-    'Cookie': '_ga=GA1.3.1698897776.1599634932; _gid=GA1.3.874786695.1599739256; _gat_gtag_UA_113065506_1=1'
+    'Cookie': 'UniqueID=uwqyGKO9V6b0qIOS1603261941075; Sites=_21; _ga=GA1.3.1698897776.1599634932; _gid=GA1.3.1291580975.1603262006; _gat_gtag_UA_113065506_1=1; 21_vq=8'
 }
 
 
@@ -44,8 +46,8 @@ class LuckyModel:
             result.append(lucky_number)
         return result
 
-    # 获取往期中奖号码
-    def fetch_history_number(self, num=1) -> List:
+    # 获取往期中奖号码 弃用
+    def fetch_history_number_old(self, num=1) -> List:
         cache = redis_helper.get_redis_helper()
 
         cache_data = cache.get(HISTORY_NUMBER_KEY)
@@ -81,5 +83,34 @@ class LuckyModel:
 
         return result
 
+    def fetch_history_number(self) -> List:
+        cache = redis_helper.get_redis_helper()
 
+        cache_data = cache.get(HISTORY_NUMBER_KEY)
+        if cache_data:
+            print('cache data')
+            result = json.loads(cache_data)
+            return result
 
+        url = 'https://kaijiang.500.com/ssq.shtml'
+        data = requests.get(url, headers=HEADERS)
+        soup = BeautifulSoup(data.content, "html.parser")
+
+        number = [x.string for x in soup.select('.ball_red')] + [soup.select('.ball_blue')[0].string]
+        code = soup.select('#change_date')[0].string
+        date = soup.select('.span_right')[0].string.split(' ')[0].replace('开奖日期：', '')
+
+        year_month_day = [int(x) for x in re.findall("\d+", date)]
+
+        weekday = datetime.datetime(*year_month_day).strftime("%A")
+
+        result = [{
+            'code': code,
+            'date': date + ' ' + weekday,
+            'number': number
+        }]
+
+        cache.set(HISTORY_NUMBER_KEY, json.dumps(result))
+        cache.expire(HISTORY_NUMBER_KEY, 300)  # 1h
+
+        return result
